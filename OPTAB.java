@@ -111,14 +111,14 @@ public class OPTAB
 		OPtoCODE.put("WD",0xDC);
 		OPtoCODE.put("+WD",0xDC);
 		//test//need to be modified
-		OPtoCODE.put("RESB",0x0);
-		OPtoCODE.put("RESW",0x0);
-		OPtoCODE.put("WORD",0x0);
-		OPtoCODE.put("BYTE",0x0);
+		OPtoCODE.put("RESB",-1);
+		OPtoCODE.put("RESW",-1);
+		OPtoCODE.put("WORD",-2);
+		OPtoCODE.put("BYTE",-2);
 		//assembler directive//need to be modified
-		OPtoCODE.put("START",0x0);
-		OPtoCODE.put("END",0x0);
-		OPtoCODE.put("BASE",0x0);
+		OPtoCODE.put("START",-3);
+		OPtoCODE.put("END",-3);
+		OPtoCODE.put("BASE",-3);
 	}
 	public static void generlizeFORMAT()
 	{
@@ -224,21 +224,27 @@ public class OPTAB
 		OPtoFORMAT.put("WD",3);
 		OPtoFORMAT.put("+WD",4);
 		//test//need to be modified
-		OPtoFORMAT.put("RESB",0);
-		OPtoFORMAT.put("RESW",0);
-		OPtoFORMAT.put("WORD",0);
-		OPtoFORMAT.put("BYTE",0);
+		OPtoFORMAT.put("RESB",-1);
+		OPtoFORMAT.put("RESW",-1);
+		OPtoFORMAT.put("WORD",-2);
+		OPtoFORMAT.put("BYTE",-2);
 		//assembler directive//need to be modified
-		OPtoFORMAT.put("START",0);
-		OPtoFORMAT.put("END",0);
-		OPtoFORMAT.put("BASE",0);
+		OPtoFORMAT.put("START",-3);
+		OPtoFORMAT.put("END",-3);
+		OPtoFORMAT.put("BASE",-3);
 	}
 	public static int getCODE(String key)
 	{
-		return OPtoCODE.get(key);
+		if( OPtoCODE.get(key) == null )
+			return -1;
+		else
+			return OPtoCODE.get(key);
 	}
 	public static int getFORMAT(String key)
 	{
-		return OPtoFORMAT.get(key);
+		if( OPtoFORMAT.get(key) == null )
+			return -1;
+		else
+			return OPtoFORMAT.get(key);
 	}
 }

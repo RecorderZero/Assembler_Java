@@ -17,7 +17,7 @@ public class InstructionSet
 	private short x = 0;
 	private int FORMAT = 0;//is it a essential attribute in InstructionSet?
 	private String OPERAND = "";
-	private int objectcode = 0;
+	private String objectcode = "";
 	private boolean isComment = false;
 	private InstructionSet nextInstruction = null;
 	
@@ -28,7 +28,7 @@ public class InstructionSet
 	{
 		setALL(tmp);
 	}
-	public void copy(InstructionSet other)
+	public InstructionSet(InstructionSet other)
 	{
 		setALL(other.toString());
 		setLABEL(other.getLABEL());
@@ -57,7 +57,7 @@ public class InstructionSet
 	{
 		OPERAND = operand;
 	}
-	public void setobjectcode(int code)
+	public void setobjectcode(String code)
 	{
 		objectcode = code;
 	}
@@ -81,7 +81,7 @@ public class InstructionSet
 	{
 		return OPERAND;
 	}
-	public int getobjectcode()
+	public String getobjectcode()
 	{
 		return objectcode;
 	}
@@ -101,6 +101,13 @@ public class InstructionSet
 	{
 		ALL = all;
 	}
+/*	public boolean isAssemblerDirective(String op)
+	{
+		if( OPTAB.getCODE(op) == -1)
+			return false;
+		else
+			return true;
+	}*/
 	public String toString()
 	{
 		return ALL;
@@ -110,6 +117,7 @@ public class InstructionSet
 		StringTokenizer st = new StringTokenizer(this.toString());
 		if (this.toString().indexOf(".")!=-1)
 		{
+			setALL(toString ().trim());
 			this.isComment = true;
 		}
 		else if(st.countTokens() == 3)
@@ -152,7 +160,7 @@ public class InstructionSet
     			AssemblerDemo.setLOCCTR(nowloc + (getOPERAND().length() - 3)/2);
 		}
     	else if(getOP().equals("WORD"))
-    		AssemblerDemo.setLOCCTR(nowloc + 3);//may need to be modified
+    		AssemblerDemo.setLOCCTR(nowloc + 3);
     	else if(getOP().equals("RESB"))
     		AssemblerDemo.setLOCCTR(nowloc + 1 * Integer.parseInt(getOPERAND()));
     	else if(getOP().equals("RESW"))
@@ -171,38 +179,48 @@ public class InstructionSet
 	}
 	public void generateobjectcode()//seems like i should move this function to other class
 	{
-		if(getOP().equals("RESB")||getOP().equals("RESW"));
+		if(getOP().equals("RESB")||getOP().equals("RESW")||getOP().equals("START")||getOP().equals("END"));
 		else if(getOP().equals("BYTE"))
 		{
 			if(getOPERAND().charAt(0)=='X')
-				objectcode = Integer.parseInt(getOPERAND().substring(2,getOPERAND().length()-1),16);
+				objectcode = getOPERAND().substring(2,getOPERAND().length()-1);
 			else if(getOPERAND().charAt(0)=='C')
 			{
 				int ASCII = 0;
 				String tmp = getOPERAND().substring(2,getOPERAND().length()-1);
 		    	for (char c : tmp.toCharArray())
 		    		ASCII = ASCII*ASCIISHIFT+(int)c;
-		    	objectcode += ASCII;
+		    	objectcode = Integer.toHexString(ASCII);
 			}
 		}
 		else if(getOP().equals("WORD"))
 		{
-			objectcode = objectcode + Integer.parseInt(getOPERAND());
+			objectcode = objectcode + Integer.toHexString(Integer.parseInt(getOPERAND()));
+			for(; objectcode.length() != 6 ;)
+			{
+				objectcode = "0" + objectcode;
+			}
 		}
 		else
 		{
-			objectcode += x*XSHIFT;
-			objectcode += OPTAB.getCODE(getOP())*OPSHIFT;
-			objectcode += SYMTAB.getADR(getOPERAND());
+			int tmp = x*XSHIFT + OPTAB.getCODE(getOP())*OPSHIFT + SYMTAB.getADR(getOPERAND());
+			objectcode = Integer.toHexString(tmp);
+			for(; objectcode.length() != 6 ;)
+			{
+				objectcode = "0" + objectcode;
+			}
 		}
+		objectcode = objectcode.toUpperCase();
 	}
-	public void print()
+	public String print()
 	{
 		if(isComment)
-			System.out.println(this.toString());
+			return this.toString()+"\r\n";
 		else if(x == 1)
-			System.out.printf("%-5x%-7s%-7s%-9s%06x\n",getLOC(),getLABEL(),getOP(),getOPERAND()+",X",getobjectcode());
+			return String.format("%-5X%-7s%-7s%-9s%s\r\n",getLOC(),getLABEL(),getOP(),getOPERAND()+",X",getobjectcode().toUpperCase());
+		else if(getOP().equals("END"))
+			return String.format("%-5s%-7s%-7s%-9s%s\r\n","",getLABEL(),getOP(),getOPERAND(),getobjectcode().toUpperCase());//bad expression, want to modify.
 		else
-			System.out.printf("%-5x%-7s%-7s%-9s%06x\n",getLOC(),getLABEL(),getOP(),getOPERAND(),getobjectcode());
+			return String.format("%-5X%-7s%-7s%-9s%s\r\n",getLOC(),getLABEL(),getOP(),getOPERAND(),getobjectcode().toUpperCase());
 	}
 }
